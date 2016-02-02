@@ -1,0 +1,63 @@
+function cloudfilt=plottertest(cloud)
+% This function plots an isosurface of an atomic cloud
+%       Input: cloud is a 3-dimensional array containing the stacked slices
+%               Add dark slices on top and bottom for endcaps
+%       Output: the final 3D cloud data: interpolated and smoothened
+%       
+%       Parameters to pay attention to:
+%               medianwindow: initial 2D medial filter window 
+%               ninterp: number of interpolating slices (17 for 7 is good)
+%               surfacelevel: density of the cloud that defines the
+%               boundary
+% 
+%       
+% 
+% % % % % % % 
+
+% Important Parameters:
+medianwindow   = 7;               % Define 2D median window size
+ninterp        = 1;                     % number of interpolations between each slice
+surfacelevel   = -3;
+
+% 2D Median Filtering:
+s = size(cloud);                % Find the size of the cloud
+for i=1:s(3) 
+    cloudfilt(:,:,i)=medfilt2(cloud(:,:,i),[medianwindow,medianwindow]); % Apply 2d filter
+end
+
+% Interpolation:
+[xp,yp,zp]=meshgrid(1:s(2),1:s(1),(1:ninterp*s(3))/ninterp); % Make an interp grid
+cloudfinal = interp3(cloudfilt,xp,yp,zp);                    % Interpolate cloud
+
+% Smoothing:
+cloudfinal = smooth3(cloudfinal);             % 3D smoothing
+%cloudfinal=medfilt3(cloudfinal,[5,5,5]);     % 3D median filtering (SLOW!)
+
+% Pick an isosurface:
+FV = isosurface(cloudfinal,surfacelevel);
+
+% Compile the c-code functions:
+mex smoothpatch_curvature_double.c -v;
+mex smoothpatch_inversedistance_double.c -v;
+mex vertex_neighbours_double.c -v;
+
+% Calculate the smoothed version
+FVsmooth=smoothpatch(FV,1,5);
+
+% Show the surface
+figure;
+p = patch(FVsmooth);                          %# create isosurface patch
+isonormals(cloudfinal, p)                              %# compute and set normals
+set(p, 'FaceColor','r', 'EdgeColor','none')   %# set surface props
+view(3),  box on, grid on, axis vis3d tight   %# set axes props
+camproj perspective                           %# use perspective projection 
+camlight, lighting phong, alpha(.5)           %# enable light, set transparency
+%daspect([1 1 1.35])                           %# axes aspect ratio
+material dull                                 %# no shiny weirdness  
+
+% Don't output anything if I don't want it
+if nargout==0, cloudfilt=[]; 
+end         
+
+end
+

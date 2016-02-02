@@ -1,0 +1,37 @@
+﻿
+3d cloud rendering notes:
+
+
+
+Currently rendering density isosurfaces: 
+
+
+To Use, Run importdata and then plotter3(cloud) in MATLAB
+
+
+ninterp=17 works well because it generates a vertical resolution of 17*8~horiz res.
+
+
+we apply median filters. One before the interpolation, and optionally one after.
+
+
+the first median filter speeds up the interpolation significantly and cleans the final result
+
+
+the 3D median filter added after the interpolation is VERY slow: turns a 3s runtime to 60s with a 5x5 window
+
+
+smooth3 is better with 13s runtime 
+
+imported a mesh smoothing tool from http://www.mathworks.com/matlabcentral/fileexchange/26710-smooth-triangulated-mesh
+
+
+works reasonably well, but it’s still a little noisy
+
+
+4ms: hard to show soliton: overwhelmed by the sound waves for now
+
+
+140ms: clear vortex. 
+Slices were not averaged. 
+Central slice is weaker - atom number fluctuations  
