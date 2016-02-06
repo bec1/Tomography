@@ -1,4 +1,4 @@
-function imgAvg(images,varargin)
+function filename = imgAvg(images,varargin)
 %% IMGAVG lets you average absorption images. 
 % Inputs: images: cell array  of images
 %         outdir (optional): output directory for averaged image.
@@ -26,7 +26,7 @@ pwoa_sum = raw_img(:,:,2);
 dark_sum = raw_img(:,:,3);
 
 for i=2:num_img
-    raw_img = fitsread(images{1});
+    raw_img = fitsread(images{i});
     pwa_sum = pwa_sum + raw_img(:,:,1);
     pwoa_sum = pwoa_sum + raw_img(:,:,2);
     dark_sum = dark_sum + raw_img(:,:,3);
